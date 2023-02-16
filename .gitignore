@@ -1,0 +1,8 @@
+*~
+*ltximg/*
+*results*
+*.out
+*.aux
+*.log
+*.nav
+*.snm
