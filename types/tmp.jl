@@ -50,3 +50,24 @@ function rhs_test2(df, f, p, t)
 end
 prob  = ODEProblem(rhs_test2, foo, tspan)
 sol   = solve(prob, RK4())
+
+
+                 
+# test network
+#           3
+#        e2/|
+#    e1   / |
+# 1 ---- 2  |e3
+#         \ |
+#        e4\|
+#           4
+ndims = 3;
+n1 = Node([1], zeros(ndims));
+e1 = Edge(5, 1, 2, zeros(ndims), []);
+n2 = Node([1,2,4], zeros(ndims));
+e2 = Edge(3, 2, 3, zeros(ndims), []);
+n3 = Node([2,3], zeros(ndims));
+e3 = Edge(3, 4, 3, zeros(ndims), []);
+n4 = Node([3,4], zeros(ndims));
+e4 = Edge(3, 4, 2, zeros(ndims), []);
+g = Graph([e1, e2, e3, e4], [n1, n2, n3, n4], Dict("dx"=>0.5));

@@ -9,7 +9,8 @@ struct Edge
 end
 
 struct Node
-    incidentEdges;
+    incomingEdges;
+    outgoingEdges;
     value; #for single time, size(node.value)=(ndim)
 end
 
@@ -54,12 +55,39 @@ end
 
 struct SerialGraph{A,N} <: AbstractArray{A,N}
     u :: ArrayPartition{A}
-    edgeInds;
-    nodeInds;
+    numEdges::Int;
+    numNodes::Int;
+    incomingEdges::Array{Array{Int, 1}, 1}; #length=numNodes
+    outgoingEdges::Array{Array{Int, 1}, 1}; #length=numNodes
+    edgeProperties::Array{Any, 1}; #length=numEdges
+    nodeProperties::Array{Any, 1}; #length=numNodes
 end
     
-SerialGraph(u::AbstractArray{T,N}, edgeInds, nodeInds) where {T,N} =
-    SerialGraph{eltype(u),N}(u, edgeInds, nodeInds);
+SerialGraph(u::AbstractArray{T,N},
+            numEdges,
+            numNodes,
+            incomingEdges,
+            outgoingEdges,
+            edgeProperties,
+            nodeProperties) where {T,N} =
+                SerialGraph{eltype(u),N}(u,
+                                         numEdges,
+                                         numNodes,
+                                         incomingEdges,
+                                         outgoingEdges,
+                                         edgeProperties,
+                                         nodeProperties);
+
+function SerialGraph(g::Graph)
+    return SerialGraph(ArrayPartition([g.edges[i].value for i in 1:length(g.edges)]...,
+                                      [g.nodes[i].value for i in 1:length(g.nodes)]...),
+                       length(g.edges),
+                       length(g.nodes),
+                       [g.nodes[i].incomingEdges for i in 1:length(g.nodes)],
+                       [g.nodes[i].outgoingEdges for i in 1:length(g.nodes)],
+                       [g.edges[i].params for i in 1:length(g.edges)],
+                       []);#nodeProperties
+end
 
 Base.size(var::SerialGraph) = size(var.u);
 
@@ -73,5 +101,17 @@ Base.setindex!(var::SerialGraph, v, I::Vararg{Int,N}) where {N} = (var.u[I...] =
 Base.setindex!(var::SerialGraph, v, ::Colon) = (var.u[:] .= v);
 Base.setindex!(var::SerialGraph, v, kr::AbstractRange) = (var.u[kr] .= v);
 
-Base.similar(var::SerialGraph) = SerialGraph(similar(var.u), var.edgeInds, var.nodeInds);
-Base.similar(var::SerialGraph,::Type{T}) where T = SerialGraph(similar(var.u,T),var.edgeInds, var.nodeInds);
+Base.similar(var::SerialGraph) = SerialGraph(similar(var.u),
+                                             var.numEdges,
+                                             var.numNodes,
+                                             var.incomingEdges,
+                                             var.outgoingEdges,
+                                             var.edgeProperties,
+                                             var.nodeProperties);
+Base.similar(var::SerialGraph,::Type{T}) where T = SerialGraph(similar(var.u,T),
+                                                               var.numEdges,
+                                                               var.numNodes,
+                                                               var.incomingEdges,
+                                                               var.outgoingEdges,
+                                                               var.edgeProperties,
+                                                               var.nodeProperties);
