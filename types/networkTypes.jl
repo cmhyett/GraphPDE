@@ -25,8 +25,8 @@ mutable struct Graph
         ndims_edges = [size(edges[i].value)[1] for i in 1:numEdges];
         ndims_nodes = [size(nodes[i].value)[1] for i in 1:numNodes];
 
-        [@assert ndims_edges[1] == ndims_edges[i] for i in 2:numNodes]
-        [@assert ndims_nodes[1] == ndims_nodes[i] for i in 2:numEdges]
+        [@assert ndims_edges[1] == ndims_edges[i] for i in 2:numEdges]
+        [@assert ndims_nodes[1] == ndims_nodes[i] for i in 2:numNodes]
         @assert ndims_edges[1] == ndims_nodes[1];
         ndims = ndims_edges[1];
 
