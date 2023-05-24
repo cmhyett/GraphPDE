@@ -17,7 +17,9 @@ include("../types/networkTypes.jl");
     e = Edge(5, 1, 2, zeros(1,5), []);
     n = Node([1], [], zeros(2));
     @test_throws AssertionError Graph([e], [n], [])
+end
 
+@testset "Compatibility with DE.jl" begin
     # test network 1
     ndims = 3;
     tspan = (0.0, 1.0)
