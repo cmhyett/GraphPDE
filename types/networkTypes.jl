@@ -14,6 +14,7 @@ struct Node
     value; #for single time, size(node.value)=(ndim)
 end
 
+#TODO this struct is likely unnecessary..
 mutable struct Graph
     edges::Vector{Edge};
     nodes::Vector{Node};
@@ -63,20 +64,10 @@ struct SerialGraph{A,N} <: AbstractArray{A,N}
     nodeProperties::Array{Any, 1}; #length=numNodes
 end
     
-SerialGraph(u::AbstractArray{T,N},
-            numEdges,
-            numNodes,
-            incomingEdges,
-            outgoingEdges,
-            edgeProperties,
-            nodeProperties) where {T,N} =
-                SerialGraph{eltype(u),N}(u,
-                                         numEdges,
-                                         numNodes,
-                                         incomingEdges,
-                                         outgoingEdges,
-                                         edgeProperties,
-                                         nodeProperties);
+SerialGraph(u::AbstractArray{T,N}, numEdges, numNodes, incomingEdges, outgoingEdges,
+            edgeProperties, nodeProperties) where {T,N} =
+                SerialGraph{eltype(u),N}(u, numEdges, numNodes, incomingEdges, outgoingEdges,
+                                         edgeProperties, nodeProperties);
 
 function SerialGraph(g::Graph)
     return SerialGraph(ArrayPartition([g.edges[i].value for i in 1:length(g.edges)]...,
@@ -89,8 +80,8 @@ function SerialGraph(g::Graph)
                        []);#nodeProperties
 end
 
-Base.size(var::SerialGraph) = size(var.u);
 
+Base.size(var::SerialGraph) = size(var.u);
 Base.getindex(var::SerialGraph, i::Int) = var.u[i];
 Base.getindex(var::SerialGraph, I::Vararg{Int,N}) where {N} = var.u[I...];
 Base.getindex(var::SerialGraph, ::Colon) = var.u[:];
@@ -100,7 +91,6 @@ Base.setindex!(var::SerialGraph, v, i::Int) = (var.u[i] = v);
 Base.setindex!(var::SerialGraph, v, I::Vararg{Int,N}) where {N} = (var.u[I...] = v);
 Base.setindex!(var::SerialGraph, v, ::Colon) = (var.u[:] .= v);
 Base.setindex!(var::SerialGraph, v, kr::AbstractRange) = (var.u[kr] .= v);
-
 Base.similar(var::SerialGraph) = SerialGraph(similar(var.u),
                                              var.numEdges,
                                              var.numNodes,
