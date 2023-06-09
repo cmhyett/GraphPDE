@@ -91,6 +91,8 @@ Base.setindex!(var::SerialGraph, v, i::Int) = (var.u[i] = v);
 Base.setindex!(var::SerialGraph, v, I::Vararg{Int,N}) where {N} = (var.u[I...] = v);
 Base.setindex!(var::SerialGraph, v, ::Colon) = (var.u[:] .= v);
 Base.setindex!(var::SerialGraph, v, kr::AbstractRange) = (var.u[kr] .= v);
+Base.BroadcastStyle(::Type{<:SerialGraph}) = Broadcast.ArrayStyle{SerialGraph}();
+#function
 Base.similar(var::SerialGraph) = SerialGraph(similar(var.u),
                                              var.numEdges,
                                              var.numNodes,
